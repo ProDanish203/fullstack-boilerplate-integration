@@ -9,6 +9,7 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 import { connectDb } from "./config/dbConnection";
 // Routes imports
 import authRoute from "./routes/auth.route";
+import usersRoute from "./routes/user.route";
 
 config();
 
@@ -41,12 +42,13 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoute);
+app.use("/api/v1/users", usersRoute);
 
 // Middlewares
 app.use(errorMiddleware);
 
 // Listen To Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 // Connect To database first then start the server
 connectDb()
   .then(() => {
