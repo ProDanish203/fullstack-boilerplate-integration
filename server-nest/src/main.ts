@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
+import { HttpExceptionFilter } from './common/filters/http-client-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +11,7 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 8000;
 
   app.setGlobalPrefix('api/v1');
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
     origin: ['http://localhost:3000'],
