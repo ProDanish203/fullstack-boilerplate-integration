@@ -24,4 +24,48 @@ export class AuthService {
     private readonly uploadService: StorageService,
     private readonly mailerService: MailerService,
   ) {}
+
+  async register(
+    { email, name, password, role }: RegisterDto,
+    image: MulterFile,
+  ) {
+    try {
+      const userExists = await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (userExists)
+        throw throwError('Email already in use', HttpStatus.CONFLICT);
+
+      const { hash, salt } = hashPassword(password);
+
+      const image_url = await this.uploadService.uploadFile(image);
+      if (!image_url)
+        throw throwError('Image upload failed', HttpStatus.BAD_REQUEST);
+
+      const user = await this.prisma.user.create({
+        data: {
+          email,
+          name,
+          profileImage: image_url.filename,
+          password: hash,
+          salt,
+          role,
+        },
+      });
+
+      if (!user)
+        throw throwError('Failed to register user', HttpStatus.BAD_REQUEST);
+
+      return {
+        message: 'User registered successfully',
+        data: user,
+        success: true,
+      };
+    } catch (error) {
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
