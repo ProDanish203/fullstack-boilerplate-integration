@@ -68,4 +68,56 @@ export class AuthService {
       throw throwError(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async login(response: Response, { email, password }: LoginDto) {
+    try {
+      const userExists = await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!userExists)
+        throw throwError('Invalid Credentials', HttpStatus.NOT_FOUND);
+
+      const isValidPassword = verifyPassword({
+        password,
+        salt: userExists.salt,
+        hash: userExists.password,
+      });
+
+      if (!isValidPassword)
+        throw throwError('Invalid Credentials', HttpStatus.NOT_FOUND);
+
+      const token = await this.setJwtTokenToCookies(response, {
+        email: userExists.email,
+        id: userExists.id,
+        role: userExists.role,
+      });
+
+      return {
+        message: 'User logged in successfully',
+        data: userExists,
+        token,
+        success: true,
+      };
+    } catch (error) {
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async setJwtTokenToCookies(res: Response, payload: JwtPayload) {
+    const token = await this.jwtService.signAsync(payload);
+
+    const cookieOptions: CookieOptions = {
+      maxAge: 15 * 24 * 60 * 60 * 1000,
+      sameSite: 'none',
+      httpOnly: true,
+      secure: true,
+    };
+
+    res.cookie('token', token, cookieOptions);
+
+    return token;
+  }
 }
