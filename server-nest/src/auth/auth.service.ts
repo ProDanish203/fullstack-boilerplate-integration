@@ -120,4 +120,59 @@ export class AuthService {
 
     return token;
   }
+
+  async logout(request: Request, response: Response) {
+    try {
+      if (!request.user)
+        throw throwError('User not found', HttpStatus.NOT_FOUND);
+
+      const cookieOptions = {
+        sameSite: 'none' as 'none',
+        httpOnly: true,
+        secure: true,
+      };
+
+      response.clearCookie('token', cookieOptions);
+
+      return {
+        message: 'User logged out successfully',
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async forgotPassword({ email }: ForgotPasswordDto) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) throw throwError('User not found', HttpStatus.NOT_FOUND);
+
+      const emailResponse = await this.mailerService.sendVerificationMail({
+        email: user.email,
+        type: EMAIL_TYPES.RESET,
+        userId: user.id,
+      });
+      if (!emailResponse)
+        throw throwError(
+          'Failed to send verification email',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      return {
+        message: 'Password reset link sent to your email',
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      console.log(error);
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

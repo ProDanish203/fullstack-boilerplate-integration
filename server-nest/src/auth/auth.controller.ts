@@ -36,7 +36,7 @@ export class AuthController {
     @UploadedFile() image: MulterFile,
     @Body(ValidationPipe) registerDto: RegisterDto,
   ) {
-    // return this.authService.register(registerDto, image);
+    return this.authService.register(registerDto, image);
   }
 
   @Post('login')
@@ -44,7 +44,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body(ValidationPipe) loginDto: LoginDto,
   ) {
-    // return this.authService.login(response, loginDto);
+    return this.authService.login(response, loginDto);
   }
 
   @Post('logout')
@@ -54,12 +54,12 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    // return this.authService.logout(request, response);
+    return this.authService.logout(request, response);
   }
 
   @Post('forgot-password')
   forgotPassword(@Body(ValidationPipe) forgotPasswordDto: ForgotPasswordDto) {
-    // return this.authService.forgotPassword(forgotPasswordDto);
+    return this.authService.forgotPassword(forgotPasswordDto);
   }
 
   @Post('reset-password')
