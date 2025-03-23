@@ -64,7 +64,7 @@ export class AuthController {
 
   @Post('reset-password')
   resetPassword(@Body(ValidationPipe) resetPasswordDto: ResetPasswordDto) {
-    // return this.authService.resetPassword(resetPasswordDto);
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   @Post('send-verification-email')

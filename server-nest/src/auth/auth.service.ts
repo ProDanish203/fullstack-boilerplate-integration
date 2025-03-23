@@ -175,4 +175,55 @@ export class AuthService {
       throw throwError(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async resetPassword({ token, password }: ResetPasswordDto) {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          forgotPasswordToken: token,
+          forgotPasswordTokenExpiry: {
+            gte: new Date(Date.now()),
+          },
+        },
+      });
+
+      if (!user)
+        throw throwError('Invalid or expired token', HttpStatus.BAD_REQUEST);
+
+      const { hash, salt } = hashPassword(password);
+
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hash,
+          salt,
+          forgotPasswordToken: null,
+          forgotPasswordTokenExpiry: null,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          hasNotifications: true,
+          isEmailVerified: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!updatedUser)
+        throw throwError('Failed to reset password', HttpStatus.BAD_REQUEST);
+
+      return {
+        message: 'Password reset successfully',
+        data: updatedUser,
+        success: true,
+      };
+    } catch (error) {
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
