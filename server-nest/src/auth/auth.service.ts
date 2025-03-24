@@ -226,4 +226,31 @@ export class AuthService {
       throw throwError(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async sendVerificationEmail(request: Request) {
+    try {
+      if (!request.user)
+        throw throwError('Unauthorized Access', HttpStatus.UNAUTHORIZED);
+
+      const emailResponse = await this.mailerService.sendVerificationMail({
+        email: request.user.email,
+        type: EMAIL_TYPES.VERIFY,
+        userId: request.user.id,
+      });
+
+      if (!emailResponse)
+        throw throwError(
+          'Failed to send verification email',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      return {
+        message: 'Verification email sent',
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

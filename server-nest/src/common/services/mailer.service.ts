@@ -60,7 +60,7 @@ export class MailerService {
         },
       });
 
-      const subject = `Humsafar | ${type === EMAIL_TYPES.VERIFY ? 'Verify your account' : 'Reset Password'} `;
+      const subject = `Boilerplate | ${type === EMAIL_TYPES.VERIFY ? 'Verify your account' : 'Reset Password'} `;
 
       const html = `
     <!DOCTYPE html>

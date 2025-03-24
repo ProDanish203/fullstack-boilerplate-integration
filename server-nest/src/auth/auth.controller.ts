@@ -71,7 +71,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Roles(...Object.values(Role))
   sendVerificationEmail(@Req() request: Request) {
-    // return this.authService.sendVerificationEmail(request);
+    return this.authService.sendVerificationEmail(request);
   }
 
   @Post('verify-email')
