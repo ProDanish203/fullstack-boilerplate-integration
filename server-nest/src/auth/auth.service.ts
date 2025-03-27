@@ -253,4 +253,43 @@ export class AuthService {
       throw throwError(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async verifyEmail({ request, token }: { request: Request; token: string }) {
+    try {
+      if (!request.user)
+        throw throwError('Unauthorized Access', HttpStatus.UNAUTHORIZED);
+
+      const validToken = await this.prisma.user.findFirst({
+        where: {
+          id: request.user.id,
+          verifyToken: token,
+          verifyTokenExpiry: {
+            gte: new Date(Date.now()),
+          },
+        },
+      });
+
+      if (!validToken)
+        throw throwError('Invalid or expired token', HttpStatus.BAD_REQUEST);
+
+      await this.prisma.user.update({
+        where: {
+          id: request.user.id,
+        },
+        data: {
+          verifyToken: null,
+          verifyTokenExpiry: null,
+          isEmailVerified: true,
+        },
+      });
+
+      return {
+        message: 'Email verified successfully',
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      throw throwError(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

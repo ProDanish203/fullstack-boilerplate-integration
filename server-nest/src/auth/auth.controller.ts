@@ -81,7 +81,7 @@ export class AuthController {
     @Req() request: Request,
     @Body(ValidationPipe) { token }: VerifyEmailDto,
   ) {
-    // return this.authService.verifyEmail({ request, token });
+    return this.authService.verifyEmail({ request, token });
   }
 
   @UseGuards(GoogleOAuthGuard)
