@@ -91,7 +91,7 @@ export class AuthController {
   @UseGuards(GoogleOAuthGuard)
   @Get('google-auth-redirect')
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    // await this.authService.signInWithGoogle(req.user, res);
+    await this.authService.signInWithGoogle(req.user, res);
     return res.redirect(`${process.env.GOOGLE_REDIRECT_URL_CLIENT_REACT}`);
   }
 }
